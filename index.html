@@ -15,8 +15,8 @@
       <img src="img/keksobooking.svg" alt="Keksobooking. Кексы по соседству" width="215" height="45">
     </div>
 
-    <!-- Карта объявлений map--faded -->
-    <section class="map">
+    <!-- Карта объявлений -->
+    <section class="map map--faded">
 
       <!-- Метки объявлений -->
       <div class="map__pins">
@@ -144,7 +144,8 @@
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="capacity">Количество мест</label>
           <select id="capacity" name="capacity">
-            <option value="3" selected>для 3 гостей</option>
+            <option disabled selected value hidden></option>
+            <option value="3">для 3 гостей</option>
             <option value="2">для 2 гостей</option>
             <option value="1">для 1 гостя</option>
             <option value="0">не для гостей</option>
