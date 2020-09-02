@@ -4,6 +4,7 @@ var MAP_WIDTH = 1200;
 var MAP_PIN_MIN_Y_POSITION = 130;
 var MAP_PIN_MAX_Y_POSITION = 630;
 var ENTER_KEYCODE = 13;
+var ESC_KEYCODE = 27;
 var MAP_PIN_MAIN_WIDTH = 65;
 var MAP_PIN_MAIN_HEIGHT = 65;
 var POINTER_HEIGHT = 22;
@@ -91,37 +92,25 @@ var createMockData = function () {
 
 var mocks = createMockData();
 var pins = document.querySelector('.map__pins');
-
-var renderPins = function (data) {
-    var template = document.querySelector('#pin').content.querySelector('button');
-    var fragment = document.createDocumentFragment();
-    
-    for (var item of data) {
-        var pin = template.cloneNode(true);
-
-        pin.style.left = item.location.x + 'px';
-        pin.style.top = item.location.y + 'px';
-        pin.children[0].src = item.author.avatar;
-        pin.children[0].alt = item.offer.title;
-
-        fragment.appendChild(pin);  
-    }
-
-    pins.appendChild(fragment);
-};
-
-renderPins(mocks);
-
-//Ниже второе задание
-
 var map = document.querySelector('.map');
 var filtersContainer = document.querySelector('.map__filters-container');
+var adForm = document.querySelector('.ad-form');
+var filters = document.querySelector('.map__filters');
+
+var closePopup = function () {
+    var popup = map.querySelector('.map__card');
+
+    if (popup) {
+        popup.remove();
+    }
+};
 
 var createCard = function (data) {
     var templateCard = document.querySelector('#card').content.querySelector('article');
     var fragmentCard = document.createDocumentFragment();
 
     var card = templateCard.cloneNode(true);
+    var cardClose = card.querySelector('.popup__close');
 
     var features = '';
 
@@ -155,13 +144,44 @@ var createCard = function (data) {
 
     fragmentCard.appendChild(card);
 
+    cardClose.addEventListener('click', closePopup);
+
     return fragmentCard;
 };
 
-map.insertBefore(createCard(mocks[0]), filtersContainer);
+var renderPins = function (data) {
+    var template = document.querySelector('#pin').content.querySelector('button');
+    var fragment = document.createDocumentFragment();
+    
+    for (var item of data) {
+        var pin = template.cloneNode(true);
 
-var adForm = document.querySelector('.ad-form');
-var filters = document.querySelector('.map__filters');
+        pin.style.left = item.location.x + 'px';
+        pin.style.top = item.location.y + 'px';
+        pin.children[0].src = item.author.avatar;
+        pin.children[0].alt = item.offer.title;
+
+        fragment.appendChild(pin);
+
+        (function (item) {
+            pin.addEventListener('click', function () {
+                closePopup();
+
+                var newPopup = createCard(item);
+
+                window.addEventListener('keydown', function(evt) {
+                    if (evt.keyCode === ESC_KEYCODE) {
+                        closePopup();
+                    }
+                });
+
+                map.insertBefore(newPopup, filtersContainer);
+            });
+        })(item);
+    }
+
+    pins.appendChild(fragment);
+};
 
 var formFields = Array.from(adForm.elements).concat(Array.from(filters.elements));
 
@@ -189,6 +209,7 @@ var onMapPinMainInteraction = function () {
     });
 
     updateMapPinMainCoordinates();
+    renderPins(mocks);
 };
 
 button.addEventListener('mousedown', onMapPinMainInteraction);
@@ -232,3 +253,44 @@ var onRoomsChange = function(evt) {
 };
 
 adForm.elements.rooms.addEventListener('change', onRoomsChange);
+
+var validatePrice = function (min) {
+    adForm.elements.price.min = min;
+    adForm.elements.price.placeholder = min;
+};
+
+var onTypeChange = function (evt) {
+    var value = evt.target.value;
+
+    switch (value) {
+        case 'palace':
+            validatePrice(10000);
+            break;
+        case 'flat':
+            validatePrice(1000);
+            break;
+        case 'house':
+            validatePrice(5000);
+            break;
+        case 'bungalo':
+            validatePrice(0);
+            break;
+    }
+};
+
+adForm.elements.type.addEventListener('change', onTypeChange);
+
+var onTimeinChange = function (evt) {
+    var value = evt.target.value;
+
+    adForm.elements.timeout.value = value;
+};
+
+var onTimeoutChange = function (evt) {
+    var value = evt.target.value;
+
+    adForm.querySelector('#timein').value = value;
+};
+
+adForm.elements.timein.addEventListener('change', onTimeinChange);
+adForm.elements.timeout.addEventListener('change', onTimeoutChange);
