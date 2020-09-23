@@ -1,22 +1,22 @@
 'use strict';
 
 (function () {
-  var mapPinMainCoordinates = window.map.getMapPinMainCoordinates();
+  var adForm = document.querySelector('.ad-form');
 
-  var formFields = Array.from(window.utils.adForm.elements).concat(Array.from(window.utils.filters.elements));
+  var disabledFormFields = function () {
+    Array.from(adForm.elements).forEach(function (element) {
+      element.setAttribute('disabled', 'disabled');
+    });
+  };
 
-  formFields.forEach(function (element) {
-    element.setAttribute('disabled', 'disabled');
-  });
-
-  window.utils.adForm.elements.address.value = Math.round((mapPinMainCoordinates.x + window.utils.MAP_PIN_MAIN_WIDTH / 2)) + ', ' + Math.round((mapPinMainCoordinates.y + window.utils.MAP_PIN_MAIN_HEIGHT / 2));
-
-  var updateAddress = function () {
-    window.utils.adForm.elements.address.value = Math.round((mapPinMainCoordinates.x + window.utils.MAP_PIN_MAIN_WIDTH / 2)) + ', ' + Math.round(mapPinMainCoordinates.y + window.utils.MAP_PIN_MAIN_HEIGHT + window.utils.POINTER_HEIGHT);
+  var enableFormFields = function () {
+    Array.from(adForm.elements).forEach(function (element) {
+      element.removeAttribute('disabled');
+    });
   };
 
   var validateCapacity = function (numberGuests) {
-    Array.from(window.utils.adForm.elements.capacity.children).forEach(function (element) {
+    Array.from(adForm.elements.capacity.children).forEach(function (element) {
       if (!numberGuests.includes(element.value)) {
         element.setAttribute('hidden', 'hidden');
       } else {
@@ -24,8 +24,6 @@
       }
     });
   };
-
-  validateCapacity(['1']);
 
   var onRoomsChange = function (evt) {
     var value = evt.target.value;
@@ -45,14 +43,12 @@
         break;
     }
 
-    window.utils.adForm.elements.capacity.value = '';
+    adForm.elements.capacity.value = '';
   };
 
-  window.utils.adForm.elements.rooms.addEventListener('change', onRoomsChange);
-
   var validatePrice = function (min) {
-    window.utils.adForm.elements.price.min = min;
-    window.utils.adForm.elements.price.placeholder = min;
+    adForm.elements.price.min = min;
+    adForm.elements.price.placeholder = min;
   };
 
   var onTypeChange = function (evt) {
@@ -74,32 +70,39 @@
     }
   };
 
-  window.utils.adForm.elements.type.addEventListener('change', onTypeChange);
-
   var onTimeinChange = function (evt) {
     var value = evt.target.value;
 
-    window.utils.adForm.elements.timeout.value = value;
+    adForm.elements.timeout.value = value;
   };
 
   var onTimeoutChange = function (evt) {
     var value = evt.target.value;
 
-    window.utils.adForm.querySelector('#timein').value = value;
+    adForm.querySelector('#timein').value = value;
   };
 
-  window.utils.adForm.elements.timein.addEventListener('change', onTimeinChange);
-  window.utils.adForm.elements.timeout.addEventListener('change', onTimeoutChange);
-
-  var mapPinMainHandler = function () {
-    window.utils.adForm. classList.remove('ad-form--disabled');
-
-    formFields.forEach(function (element) {
-      element.removeAttribute('disabled');
-    });
-
-    updateAddress();
+  var mapPinMainInteractionHandler = function () {
+    adForm. classList.remove('ad-form--disabled');
+    enableFormFields();
   };
 
-  window.map.addMapPinMainHandler(mapPinMainHandler);
+  var mapPinMainCoordinatesChange = function (coordinates) {
+    adForm.elements.address.value = coordinates.x + ', ' + coordinates.y;
+  };
+
+  var mapPinMainCoordinates = window.map.getMapPinMainCoordinates();
+
+  adForm.elements.address.value = Math.round((mapPinMainCoordinates.x + window.utils.MAP_PIN_MAIN_WIDTH / 2)) + ', ' + Math.round((mapPinMainCoordinates.y + window.utils.MAP_PIN_MAIN_HEIGHT / 2));
+
+  validateCapacity(['1']);
+  disabledFormFields();
+
+  adForm.elements.type.addEventListener('change', onTypeChange);
+  adForm.elements.rooms.addEventListener('change', onRoomsChange);
+  adForm.elements.timein.addEventListener('change', onTimeinChange);
+  adForm.elements.timeout.addEventListener('change', onTimeoutChange);
+
+  window.map.addMapPinMainInteractionHandler(mapPinMainInteractionHandler);
+  window.mapPinMain.addMapPinMainCoordinatesChangeHandler(mapPinMainCoordinatesChange);
 })();

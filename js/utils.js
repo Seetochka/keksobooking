@@ -12,11 +12,7 @@
   var ENTER_KEYCODE = 13;
 
   var map = document.querySelector('.map');
-  var pins = document.querySelector('.map__pins');
-  var filtersContainer = document.querySelector('.map__filters-container');
-  var adForm = document.querySelector('.ad-form');
-  var button = document.querySelector('.map__pin--main');
-  var filters = document.querySelector('.map__filters');
+  var mapPinMain = document.querySelector('.map__pin--main');
 
   window.utils = {
     MAP_WIDTH: MAP_WIDTH,
@@ -28,10 +24,6 @@
     ESC_KEYCODE: ESC_KEYCODE,
     ENTER_KEYCODE: ENTER_KEYCODE,
     map: map,
-    pins: pins,
-    filtersContainer: filtersContainer,
-    adForm: adForm,
-    button: button,
-    filters: filters
+    mapPinMain: mapPinMain
   };
 })();

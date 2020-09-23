@@ -1,41 +1,50 @@
 'use strict';
 
 (function () {
-    var renderPins = function (data) {
-        var template = document.querySelector('#pin').content.querySelector('button');
-        var fragment = document.createDocumentFragment();
+  var pins = document.querySelector('.map__pins');
+  var filtersContainer = document.querySelector('.map__filters-container');
 
-        for (var item of data) {
-            var pin = template.cloneNode(true);
+  var renderPins = function (data) {
+    var template = document.querySelector('#pin').content.querySelector('button');
+    var fragment = document.createDocumentFragment();
 
-            pin.style.left = item.location.x + 'px';
-            pin.style.top = item.location.y + 'px';
-            pin.children[0].src = item.author.avatar;
-            pin.children[0].alt = item.offer.title;
+    data.forEach(function (item) {
+      var pin = template.cloneNode(true);
 
-            fragment.appendChild(pin);
+      pin.style.left = item.location.x + 'px';
+      pin.style.top = item.location.y + 'px';
+      pin.children[0].src = item.author.avatar;
+      pin.children[0].alt = item.offer.title;
 
-            (function (item) {
-                pin.addEventListener('click', function () {
-                    window.mapCard.closeCard();
+      fragment.appendChild(pin);
 
-                    var newPopup = window.mapCard.createCard(item);
+      // TODO разобраться с вложенностью callback
+      // eslint-disable-next-line no-shadow
+      (function (item) {
+        // TODO разобраться с вложенностью callback
+        // eslint-disable-next-line max-nested-callbacks
+        pin.addEventListener('click', function () {
+          window.mapCard.closeCard();
 
-                    window.addEventListener('keydown', function(evt) {
-                        if (evt.keyCode === window.utils.ESC_KEYCODE) {
-                            window.mapCard.closeCard();
-                        }
-                    });
+          var newPopup = window.mapCard.createCard(item);
 
-                    window.utils.map.insertBefore(newPopup, window.utils.filtersContainer);
-                });
-            })(item);
-        }
+          // TODO разобраться с вложенностью callback
+          // eslint-disable-next-line max-nested-callbacks
+          window.addEventListener('keydown', function (evt) {
+            if (evt.keyCode === window.utils.ESC_KEYCODE) {
+              window.mapCard.closeCard();
+            }
+          });
 
-        window.utils.pins.appendChild(fragment);
-    };
+          window.utils.map.insertBefore(newPopup, filtersContainer);
+        });
+      })(item);
+    });
 
-    window.mapPin = {
-        renderPins: renderPins
-    };
+    pins.appendChild(fragment);
+  };
+
+  window.mapPin = {
+    renderPins: renderPins
+  };
 })();
