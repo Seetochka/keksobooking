@@ -13,7 +13,7 @@
 
   var filters = document.querySelector('.map__filters');
 
-  var mocks = window.data.createMockData();
+  var offers = null;
 
   var disabledFilterFields = function () {
     Array.from(filters.elements).forEach(function (element) {
@@ -37,17 +37,23 @@
     enableFilterFields();
     callMapPinMainInteractionHandlers();
 
-    window.mapPin.renderPins(mocks);
+    window.mapPin.renderPins(offers);
   };
 
   disabledFilterFields();
 
-  window.utils.mapPinMain.addEventListener('mousedown', onMapPinMainInteraction);
-  window.utils.mapPinMain.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === window.utils.ENTER_KEYCODE) {
-      onMapPinMainInteraction();
-    }
-  });
+  var dataLoadHandler = function (data) {
+    offers = data;
+
+    window.utils.mapPinMain.addEventListener('mousedown', onMapPinMainInteraction);
+    window.utils.mapPinMain.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === window.utils.ENTER_KEYCODE) {
+        onMapPinMainInteraction();
+      }
+    });
+  };
+
+  window.data.addDataLoadHandler(dataLoadHandler);
 
   window.map = {
     getMapPinMainCoordinates: getMapPinMainCoordinates,
