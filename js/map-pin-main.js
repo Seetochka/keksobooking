@@ -74,12 +74,6 @@
   window.mapPinMain = {
     addMapPinMainCoordinatesChangeHandler: function (handler) {
       mapPinMainCoordinatesChangeHandlers.push(handler);
-    },
-    removeMapPinMainCoordinatesChangeHandler: function (handler) {
-      mapPinMainCoordinatesChangeHandlers = mapPinMainCoordinatesChangeHandlers
-          .filter(function (a) {
-            return a !== handler;
-          });
-    },
+    }
   };
 })();

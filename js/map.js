@@ -15,7 +15,7 @@
 
   var offers = null;
 
-  var disabledFilterFields = function () {
+  var disableFilterFields = function () {
     Array.from(filters.elements).forEach(function (element) {
       element.setAttribute('disabled', 'disabled');
     });
@@ -31,6 +31,17 @@
     return {x: parseInt(window.utils.mapPinMain.style.left, 10), y: parseInt(window.utils.mapPinMain.style.top, 10)};
   };
 
+  var defaultMapPinMainCoordinates = getMapPinMainCoordinates();
+
+  var disableMap = function () {
+    disableFilterFields();
+
+    window.utils.mapPinMain.style.left = defaultMapPinMainCoordinates.x + 'px';
+    window.utils.mapPinMain.style.top = defaultMapPinMainCoordinates.y + 'px';
+
+    window.utils.map.classList.add('map--faded');
+  };
+
   var onMapPinMainInteraction = function () {
     window.utils.map.classList.remove('map--faded');
 
@@ -40,7 +51,11 @@
     window.mapPin.renderPins(offers);
   };
 
-  disabledFilterFields();
+  var createOfferSuccessHandler = function () {
+    disableMap();
+  };
+
+  disableFilterFields();
 
   var dataLoadHandler = function (data) {
     offers = data;
@@ -54,17 +69,13 @@
   };
 
   window.data.addDataLoadHandler(dataLoadHandler);
+  window.data.addCreateOfferSuccessHandlers(createOfferSuccessHandler);
 
   window.map = {
     getMapPinMainCoordinates: getMapPinMainCoordinates,
     addMapPinMainInteractionHandler: function (handler) {
       mapPinMainInteractionHandlers.push(handler);
     },
-    removeMapPinMainInteractionHandler: function (handler) {
-      mapPinMainInteractionHandlers = mapPinMainInteractionHandlers
-                .filter(function (a) {
-                  return a !== handler;
-                });
-    }
+    disableMap: disableMap
   };
 })();

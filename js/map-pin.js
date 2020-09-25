@@ -4,6 +4,22 @@
   var pins = document.querySelector('.map__pins');
   var filtersContainer = document.querySelector('.map__filters-container');
 
+  var onEscKeyDown = function (evt) {
+    if (evt.keyCode === window.utils.ESC_KEYCODE) {
+      window.mapCard.closeCard();
+
+      window.removeEventListener('keydown', onEscKeyDown);
+    }
+  };
+
+  var removePins = function () {
+    Array.from(pins.children).forEach(function (element) {
+      if (!element.classList.contains('map__overlay') && !element.classList.contains('map__pin--main')) {
+        element.remove();
+      }
+    });
+  };
+
   var renderPins = function (data) {
     var template = document.querySelector('#pin').content.querySelector('button');
     var fragment = document.createDocumentFragment();
@@ -30,11 +46,7 @@
 
           // TODO разобраться с вложенностью callback
           // eslint-disable-next-line max-nested-callbacks
-          window.addEventListener('keydown', function (evt) {
-            if (evt.keyCode === window.utils.ESC_KEYCODE) {
-              window.mapCard.closeCard();
-            }
-          });
+          window.addEventListener('keydown', onEscKeyDown);
 
           window.utils.map.insertBefore(newPopup, filtersContainer);
         });
@@ -44,7 +56,14 @@
     pins.appendChild(fragment);
   };
 
+  var createOfferSuccessHandler = function () {
+    removePins();
+  };
+
+  window.data.addCreateOfferSuccessHandlers(createOfferSuccessHandler);
+
   window.mapPin = {
-    renderPins: renderPins
+    renderPins: renderPins,
+    removePins: removePins
   };
 })();

@@ -2,8 +2,8 @@
 
 (function () {
   var dataLoadHandlers = [];
+  var createOfferSuccessHandlers = [];
   var offers = [];
-  var URL = 'https://javascript.pages.academy/keksobooking/data';
 
   var callDataLoadHandlers = function (data) {
     if (dataLoadHandlers.length) {
@@ -13,7 +13,15 @@
     }
   };
 
-  var load = function (onSuccess, onError) {
+  var callCreateOfferSuccessHandlers = function (data) {
+    if (createOfferSuccessHandlers.length) {
+      createOfferSuccessHandlers.forEach(function (handler) {
+        handler(data);
+      });
+    }
+  };
+
+  var load = function (url, method, data, onSuccess, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
 
@@ -21,44 +29,60 @@
       if (xhr.status === 200) {
         onSuccess(xhr.response);
       } else {
-        onError('error', ('Статус ответа: ' + xhr.status + ' ' + xhr.statusText), 'Попробовать снова', buttonHandler);
+        onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
       }
     });
 
     xhr.addEventListener('error', function () {
-      onError('error', 'Произошла ошибка соединения', 'Попробовать снова', buttonHandler);
+      onError('Произошла ошибка соединения');
     });
     xhr.addEventListener('timeout', function () {
-      onError('error', ('Запрос не успел выполниться за ' + xhr.timeout + 'мс'), 'Попробовать снова', buttonHandler);
+      onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
 
-    xhr.timeout = 10000; // 10s
+    xhr.timeout = window.utils.REQUEST_TIMEOUT;
 
-    xhr.open('GET', URL);
-    xhr.send();
+    xhr.open(method, url);
+
+    if (data) {
+      xhr.send(data);
+    } else {
+      xhr.send();
+    }
   };
 
-  var buttonHandler = function () {
-    load(successHandler, window.overLay.showOverlay);
+  var getOffers = function () {
+    load('https://javascript.pages.academy/keksobooking/data', 'GET', null, function (response) {
+      offers = response;
+
+      callDataLoadHandlers(offers);
+    }, function (errorText) {
+      window.overLay.showOverlay('error', errorText, 'Попробовать снова', function () {
+        getOffers();
+      });
+    });
   };
 
-  var successHandler = function (response) {
-    offers = response;
-
-    callDataLoadHandlers(offers);
+  var createOffer = function (offer) {
+    load('https://javascript.pages.academy/keksobooking', 'POST', offer, function () {
+      window.overLay.showOverlay('success', 'Ваше объявление успешно размещено!');
+      callCreateOfferSuccessHandlers();
+    }, function (errorText) {
+      window.overLay.showOverlay('error', errorText, 'Попробовать снова', function () {
+        createOffer(offer);
+      });
+    });
   };
 
-  load(successHandler, window.overLay.showOverlay);
+  getOffers();
 
   window.data = {
     addDataLoadHandler: function (handler) {
       dataLoadHandlers.push(handler);
     },
-    removeDataLoadHandler: function (handler) {
-      dataLoadHandlers = dataLoadHandlers
-              .filter(function (a) {
-                return a !== handler;
-              });
+    createOffer: createOffer,
+    addCreateOfferSuccessHandlers: function (handler) {
+      createOfferSuccessHandlers.push(handler);
     }
   };
 })();

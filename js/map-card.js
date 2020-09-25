@@ -53,6 +53,12 @@
     return fragmentCard;
   };
 
+  var createOfferSuccessHandler = function () {
+    closeCard();
+  };
+
+  window.data.addCreateOfferSuccessHandlers(createOfferSuccessHandler);
+
   window.mapCard = {
     closeCard: closeCard,
     createCard: createCard

@@ -3,7 +3,7 @@
 (function () {
   var adForm = document.querySelector('.ad-form');
 
-  var disabledFormFields = function () {
+  var disableFormFields = function () {
     Array.from(adForm.elements).forEach(function (element) {
       element.setAttribute('disabled', 'disabled');
     });
@@ -13,6 +13,12 @@
     Array.from(adForm.elements).forEach(function (element) {
       element.removeAttribute('disabled');
     });
+  };
+
+  var disableForm = function () {
+    adForm.reset();
+    disableFormFields();
+    adForm.classList.add('ad-form--disabled');
   };
 
   var validateCapacity = function (numberGuests) {
@@ -82,6 +88,18 @@
     adForm.querySelector('#timein').value = value;
   };
 
+  var onFormSubmit = function (evt) {
+    evt.preventDefault();
+    window.data.createOffer(new FormData(adForm));
+  };
+
+  var onFormReset = function () {
+    disableForm();
+    window.mapCard.closeCard();
+    window.mapPin.removePins();
+    window.map.disableMap();
+  };
+
   var mapPinMainInteractionHandler = function () {
     adForm. classList.remove('ad-form--disabled');
     enableFormFields();
@@ -91,13 +109,20 @@
     adForm.elements.address.value = coordinates.x + ', ' + coordinates.y;
   };
 
-  var mapPinMainCoordinates = window.map.getMapPinMainCoordinates();
+  var createOfferSuccessHandler = function () {
+    disableForm();
+  };
 
-  adForm.elements.address.value = Math.round((mapPinMainCoordinates.x + window.utils.MAP_PIN_MAIN_WIDTH / 2)) + ', ' + Math.round((mapPinMainCoordinates.y + window.utils.MAP_PIN_MAIN_HEIGHT / 2));
+  var mapPinMainCoordinates = window.map.getMapPinMainCoordinates();
+  var address = Math.round((mapPinMainCoordinates.x + window.utils.MAP_PIN_MAIN_WIDTH / 2)) + ', ' + Math.round((mapPinMainCoordinates.y + window.utils.MAP_PIN_MAIN_HEIGHT / 2));
+
+  adForm.elements.address.setAttribute('value', address);
 
   validateCapacity(['1']);
-  disabledFormFields();
+  disableFormFields();
 
+  adForm.addEventListener('submit', onFormSubmit);
+  adForm.addEventListener('reset', onFormReset);
   adForm.elements.type.addEventListener('change', onTypeChange);
   adForm.elements.rooms.addEventListener('change', onRoomsChange);
   adForm.elements.timein.addEventListener('change', onTimeinChange);
@@ -105,4 +130,5 @@
 
   window.map.addMapPinMainInteractionHandler(mapPinMainInteractionHandler);
   window.mapPinMain.addMapPinMainCoordinatesChangeHandler(mapPinMainCoordinatesChange);
+  window.data.addCreateOfferSuccessHandlers(createOfferSuccessHandler);
 })();

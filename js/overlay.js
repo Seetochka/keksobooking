@@ -27,6 +27,20 @@
       }
     };
 
+    var onEmptySpaceClick = function (evt) {
+      if (
+        !evt.target.classList.contains('success__message') &&
+        !evt.target.classList.contains('error__message') &&
+        !evt.target.classList.contains('error__button')
+      ) {
+        if (buttonHandler !== undefined) {
+          buttonHandler();
+        }
+
+        closeOverlay();
+      }
+    };
+
     if (type === 'error') {
       overlay = errorTemplate.cloneNode(true);
 
@@ -49,6 +63,7 @@
     }
 
     window.addEventListener('keydown', onEscKeyDown);
+    overlay.addEventListener('click', onEmptySpaceClick);
 
     document.querySelector('main').appendChild(overlay);
 
