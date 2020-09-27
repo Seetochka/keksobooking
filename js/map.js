@@ -35,6 +35,7 @@
 
   var disableMap = function () {
     disableFilterFields();
+    window.mapPin.removePins();
 
     window.utils.mapPinMain.style.left = defaultMapPinMainCoordinates.x + 'px';
     window.utils.mapPinMain.style.top = defaultMapPinMainCoordinates.y + 'px';
@@ -48,7 +49,7 @@
     enableFilterFields();
     callMapPinMainInteractionHandlers();
 
-    window.mapPin.renderPins(offers);
+    window.mapPin.renderPins(offers.slice(0, window.utils.MAX_PIN_COUNT));
   };
 
   var createOfferSuccessHandler = function () {
@@ -68,8 +69,14 @@
     });
   };
 
+  var filtersChangeHandler = function (filteredOffers) {
+    window.mapPin.removePins();
+    window.mapPin.renderPins(filteredOffers.slice(0, window.utils.MAX_PIN_COUNT));
+  };
+
   window.data.addDataLoadHandler(dataLoadHandler);
   window.data.addCreateOfferSuccessHandlers(createOfferSuccessHandler);
+  window.mapFilters.addFiltersChangeHandler(filtersChangeHandler);
 
   window.map = {
     getMapPinMainCoordinates: getMapPinMainCoordinates,

@@ -83,6 +83,7 @@
     createOffer: createOffer,
     addCreateOfferSuccessHandlers: function (handler) {
       createOfferSuccessHandlers.push(handler);
-    }
+    },
+    offers: offers
   };
 })();

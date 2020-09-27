@@ -12,6 +12,7 @@
   var ENTER_KEYCODE = 13;
 
   var REQUEST_TIMEOUT = 10000;
+  var MAX_PIN_COUNT = 5;
 
   var map = document.querySelector('.map');
   var mapPinMain = document.querySelector('.map__pin--main');
@@ -26,6 +27,7 @@
     ESC_KEYCODE: ESC_KEYCODE,
     ENTER_KEYCODE: ENTER_KEYCODE,
     REQUEST_TIMEOUT: REQUEST_TIMEOUT,
+    MAX_PIN_COUNT: MAX_PIN_COUNT,
     map: map,
     mapPinMain: mapPinMain
   };
