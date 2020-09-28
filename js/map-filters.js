@@ -6,6 +6,7 @@
   var filtersChangeHandlers = [];
   var filterList = [];
   var offers = null;
+  var features = [];
 
   var callFiltersChangeHandlers = function (filteredOffers) {
     if (filtersChangeHandlers.length) {
@@ -22,23 +23,71 @@
       return offersToFilter;
     }
 
-    var typeHousing = offersToFilter.filter(function (offer) {
+    var housingType = offersToFilter.filter(function (offer) {
       return offer.offer.type === type;
     });
 
-    return typeHousing;
+    return housingType;
   };
 
   var filterHousingPrice = function (offersToFilter) {
-    return offersToFilter;
+    var priceType = mapFilters.elements['housing-price'].value;
+
+    if (priceType === 'any') {
+      return offersToFilter;
+    }
+
+    var typeToPrice = {
+      'middle': [10000, 50000],
+      'low': [0, 10000],
+      'high': [50000, Infinity]
+    };
+
+    var housingPrice = offersToFilter.filter(function (offer) {
+      return (offer.offer.price > typeToPrice[priceType][0] && offer.offer.price < typeToPrice[priceType][1]);
+    });
+
+    return housingPrice;
   };
 
   var filterHousingRooms = function (offersToFilter) {
-    return offersToFilter;
+    var roomsCount = mapFilters.elements['housing-rooms'].value;
+
+    if (roomsCount === 'any') {
+      return offersToFilter;
+    }
+
+    var housingRooms = offersToFilter.filter(function (offer) {
+      return offer.offer.rooms === Number(roomsCount);
+    });
+
+    return housingRooms;
   };
 
   var filterHousingGuests = function (offersToFilter) {
-    return offersToFilter;
+    var guestsCount = mapFilters.elements['housing-guests'].value;
+
+    if (guestsCount === 'any') {
+      return offersToFilter;
+    }
+
+    var housingGuests = offersToFilter.filter(function (offer) {
+      return offer.offer.guests === Number(guestsCount);
+    });
+
+    return housingGuests;
+  };
+
+  var filterHousingFeatures = function (offersToFilter) {
+    if (!features.length) {
+      return offersToFilter;
+    }
+
+    var housingFeatures = offersToFilter.filter(function (offer) {
+      return window.utils.contains(offer.offer.features, features);
+    });
+
+    return housingFeatures;
   };
 
   var selectToFilter = {
@@ -54,6 +103,18 @@
         filterList.push(selectToFilter[select.name]);
       }
     });
+
+    features = [];
+
+    Array.from(mapFilters.elements['housing-features'].children).forEach(function (item) {
+      if (item.checked === true) {
+        features.push(item.value);
+      }
+    });
+
+    if (features.length) {
+      filterList.push(filterHousingFeatures);
+    }
   };
 
   var filter = function (offersToFilter) {
@@ -79,7 +140,7 @@
 
   window.data.addDataLoadHandler(dataLoadHandler);
 
-  mapFilters.addEventListener('change', onMapFiltersChange);
+  mapFilters.addEventListener('change', window.utils.debounce(onMapFiltersChange));
 
   window.mapFilters = {
     addFiltersChangeHandler: function (handler) {

@@ -13,9 +13,34 @@
 
   var REQUEST_TIMEOUT = 10000;
   var MAX_PIN_COUNT = 5;
+  var DEBOUNCE_INTERVAL = 500;
 
   var map = document.querySelector('.map');
   var mapPinMain = document.querySelector('.map__pin--main');
+
+  function contains(where, what) {
+    for (var i = 0; i < what.length; i++) {
+      if (where.indexOf(what[i]) === -1) {
+        return false;
+      }
+    }
+
+    return where;
+  }
+
+  var debounce = function (cb) {
+    var lastTimeout = null;
+
+    return function () {
+      var parameters = arguments;
+      if (lastTimeout) {
+        window.clearTimeout(lastTimeout);
+      }
+      lastTimeout = window.setTimeout(function () {
+        cb.apply(null, parameters);
+      }, DEBOUNCE_INTERVAL);
+    };
+  };
 
   window.utils = {
     MAP_WIDTH: MAP_WIDTH,
@@ -29,6 +54,8 @@
     REQUEST_TIMEOUT: REQUEST_TIMEOUT,
     MAX_PIN_COUNT: MAX_PIN_COUNT,
     map: map,
-    mapPinMain: mapPinMain
+    mapPinMain: mapPinMain,
+    contains: contains,
+    debounce: debounce
   };
 })();
