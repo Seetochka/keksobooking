@@ -57,14 +57,15 @@
 
       callDataLoadHandlers(offers);
     }, function (errorText) {
-      window.overLay.showOverlay('error', errorText, 'Попробовать снова', function () {
-        getOffers();
+      window.overLay.showOverlay('error', errorText, 'Использовать моки', function () {
+        offers = window.mocks.mocks;
+        callDataLoadHandlers(offers);
       });
     });
   };
 
   var createOffer = function (offer) {
-    load('https://javascript.pages.academy/keksobooking', 'POST', offer, function () {
+    load('https://javascript.pages.academgy/keksobooking', 'POST', offer, function () {
       window.overLay.showOverlay('success', 'Ваше объявление успешно размещено!');
       callCreateOfferSuccessHandlers();
     }, function (errorText) {
